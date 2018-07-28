@@ -1,7 +1,9 @@
 #include "backend_helper.h"
 
+/* Create new objects */
 BackendObj *get_new_BackendObj()
 {
+  // dbus_connection and skeleton we be created later
   BackendObj *b = (BackendObj *)(malloc(sizeof(BackendObj)));
   b->dbus_connection = NULL;
   b->dialogs = g_hash_table_new_full(g_str_hash,
@@ -15,6 +17,7 @@ BackendObj *get_new_BackendObj()
 
 Dialog *get_new_Dialog()
 {
+  // Right now it will have only one kind of printer but multiple can be added.
   Dialog *d = g_new(Dialog, 1);
   d->cancel = 0;
   d->keep_alive = FALSE;
@@ -24,6 +27,7 @@ Dialog *get_new_Dialog()
 
 FilePrinter *get_FilePrinter()
 {
+  // Printer for saving the file as PDF.
   FilePrinter *p = g_new(FilePrinter, 1);
   p->name = "Save_As_PDF";
   p->info = "Printing to a PDF File";
@@ -31,6 +35,8 @@ FilePrinter *get_FilePrinter()
   return p;
 }
 
+
+/* Functions used to execute various D-Bus Methods */
 void add_frontend(BackendObj *b, const char *dialog_name)
 {
   Dialog *d = get_new_Dialog();
@@ -110,7 +116,10 @@ void print_file(const char *file_path, const char *final_file_path)
   size_t bytes;
   char buffer[65536];
 
-  printf("%s\n", final_file_path);
+  char msg[200];
+  sprintf(msg, "Printing the file %s to the destination file %s.\n", file_path, final_file_path);
+  MSG_LOG(msg, INFO);
+
   while((bytes = fread(buffer, 1, sizeof(buffer), fin)) > 0)
   {
     fwrite(buffer, bytes, 1, fout);
