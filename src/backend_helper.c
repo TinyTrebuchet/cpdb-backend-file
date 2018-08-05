@@ -12,6 +12,7 @@ BackendObj *get_new_BackendObj()
                                      (GDestroyNotify)free_Dialog);
   b->num_frontends = 0;
   b->obj_path = NULL;
+  b->default_printer = NULL;
   return b;
 }
 
@@ -32,6 +33,10 @@ FilePrinter *get_FilePrinter()
   p->name = "Save_As_PDF";
   p->info = "Printing to a PDF File";
   p->location = "localhost";
+  p->state = "idle";
+  p->is_accepting_jobs = 1;
+  p->num_options = 0;
+  p->options = NULL;
   return p;
 }
 
@@ -40,6 +45,7 @@ FilePrinter *get_FilePrinter()
 void add_frontend(BackendObj *b, const char *dialog_name)
 {
   Dialog *d = get_new_Dialog();
+  b->default_printer = d->printers->name;
   g_hash_table_insert(b->dialogs, get_string_copy(dialog_name), d);
   b->num_frontends++;
 }
@@ -98,6 +104,25 @@ void send_printer_added_signal(BackendObj *b, const char *dialog_name)
                                 gv,
                                 &error);
   g_assert_no_error(error);
+}
+
+char *get_default_printer(BackendObj *b)
+{
+  if(b->default_printer == NULL)
+    return "Save_As_PDF";
+  return b->default_printer;
+}
+
+GVariant *pack_option(const Option *opt)
+{
+  GVariant **temp = g_new(GVariant *, 4);
+  temp[0] = g_variant_new_string(opt->name);
+  temp[1] = g_variant_new_string(opt->default_value);
+  temp[2] = g_variant_new_int32(opt->num_supported);
+  temp[3] = pack_string_array(opt->num_supported, opt->supported_values);
+  GVariant *option_variant = g_variant_new_tuple(temp, 4);
+  g_free(temp);
+  return option_variant;
 }
 
 void MSG_LOG(const char *msg, int msg_level)

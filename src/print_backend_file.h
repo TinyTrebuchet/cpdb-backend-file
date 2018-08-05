@@ -46,4 +46,22 @@ static void on_refresh_backend(GDBusConnection *connection,
                                GVariant *parameters,
                                gpointer user_data);
 
+static gboolean on_handle_get_default_printer(PrintBackend *interface,
+                                              GDBusMethodInvocation *invocation,
+                                              gpointer user_data);
+
+static gboolean on_handle_get_printer_state(PrintBackend *interface, 
+                                            GDBusMethodInvocation *invocation,
+                                            const gchar *printer_name,
+                                            gpointer user_data);
+
+static gboolean on_handle_is_accepting_jobs(PrintBackend *interface,
+                                            GDBusMethodInvocation *invocation,
+                                            const gchar *printer_name,
+                                            gpointer user_data);
+
+static gboolean on_handle_get_all_options(PrintBackend *interface,
+                                          GDBusMethodInvocation *invocation,
+                                          const gchar *printer_name,
+                                          gpointer user_data);
 void connect_to_signals();

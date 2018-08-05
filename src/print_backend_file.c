@@ -113,6 +113,102 @@ static void on_refresh_backend(GDBusConnection *connection,
   g_message("Refresh backend signal from %s\n", sender_name); 
 }
 
+static gboolean on_handle_get_default_printer(PrintBackend *interface,                                 
+                                              GDBusMethodInvocation *invocation,
+                                              gpointer user_data)
+{
+  char *printer = get_default_printer(b);
+  printf("%s\n", printer);
+  print_backend_complete_get_default_printer(interface, invocation, printer);
+  return TRUE;
+}
+
+static gboolean on_handle_get_printer_state(PrintBackend *interface,
+                                            GDBusMethodInvocation *invocation,
+                                            const gchar *printer_name,
+                                            gpointer user_data)
+{
+  const char *dialog_name = g_dbus_method_invocation_get_sender(invocation);
+  Dialog *d = (Dialog *)g_hash_table_lookup(b->dialogs, dialog_name);
+  if(d == NULL)
+  {
+    MSG_LOG("Invalid dialog name.\n", ERR);
+    exit(EXIT_FAILURE);
+  }
+  
+  if(strcmp(d->printers->name, printer_name))
+  {
+    printf("Printer '%s' does not exist for the dialog %s.\n", printer_name, dialog_name);
+    exit(EXIT_FAILURE);
+  }
+
+  const char *state = d->printers->state;
+  printf("%s is %s\n", printer_name, state);
+  print_backend_complete_get_printer_state(interface, invocation, state);
+  return TRUE;
+}
+
+static gboolean on_handle_is_accepting_jobs(PrintBackend *interface,
+                                            GDBusMethodInvocation *invocation,
+                                            const gchar *printer_name,
+                                            gpointer user_data)
+{
+  const char *dialog_name = g_dbus_method_invocation_get_sender(invocation);
+  Dialog *d = (Dialog *)g_hash_table_lookup(b->dialogs, dialog_name);
+  if(d == NULL)
+  {
+    MSG_LOG("Invalid dialog name.\n", ERR);
+    exit(EXIT_FAILURE);
+  }
+  
+  if(strcmp(d->printers->name, printer_name))
+  {
+    printf("Printer '%s' does not exist for the dialog %s.\n", printer_name, dialog_name);
+    exit(EXIT_FAILURE);
+  }
+
+  print_backend_complete_is_accepting_jobs(interface, invocation, d->printers->is_accepting_jobs);
+  return TRUE;
+}
+
+static gboolean on_handle_get_all_options(PrintBackend *interface,
+                                          GDBusMethodInvocation *invocation,
+                                          const gchar *printer_name,
+                                          gpointer user_data)
+{
+  const char *dialog_name = g_dbus_method_invocation_get_sender(invocation);
+  Dialog *d = (Dialog *)g_hash_table_lookup(b->dialogs, dialog_name);
+  if(d == NULL)
+  {
+    MSG_LOG("Invalid dialog name.\n", ERR);
+    exit(EXIT_FAILURE);
+  }
+  
+  if(strcmp(d->printers->name, printer_name))
+  {
+    printf("Printer '%s' does not exist for the dialog %s.\n", printer_name, dialog_name);
+    exit(EXIT_FAILURE);
+  }
+
+  int count = d->printers->num_options;
+  Option *options;
+  options = d->printers->options;
+
+  GVariantBuilder *builder;
+  builder = g_variant_builder_new(G_VARIANT_TYPE("a(ssia(s))"));
+
+  for(int i=0; i<count ; i++)
+  {
+    GVariant *option = pack_option(&options[i]);
+    g_variant_builder_add_value(builder, option);
+  }
+
+  GVariant *variant;
+  variant = g_variant_builder_end(builder);
+  print_backend_complete_get_all_options(interface, invocation, count, variant);
+  return TRUE;
+}
+
 void connect_to_signals()
 {
   PrintBackend *skeleton = b->skeleton;
@@ -125,6 +221,26 @@ void connect_to_signals()
   g_signal_connect(skeleton,
                    "handle-print-file",
                    G_CALLBACK(on_handle_print_file),
+                   NULL);
+
+  g_signal_connect(skeleton,
+                   "handle-get-default-printer",
+                   G_CALLBACK(on_handle_get_default_printer),
+                   NULL);
+
+  g_signal_connect(skeleton,
+                   "handle-get-printer-state",
+                   G_CALLBACK(on_handle_get_printer_state),
+                   NULL);
+
+  g_signal_connect(skeleton,
+                   "handle-is-accepting-jobs",
+                   G_CALLBACK(on_handle_is_accepting_jobs),
+                   NULL);
+
+  g_signal_connect(skeleton,
+                   "handle-get-all-options",
+                   G_CALLBACK(on_handle_get_all_options),
                    NULL);
 
   g_dbus_connection_signal_subscribe(b->dbus_connection,
