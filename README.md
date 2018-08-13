@@ -1,5 +1,6 @@
 # File Common Print Dialog Backend
 
+This repository contains one of the components I worked on as part of my Google Summer of Code'18 project with the Linux Foundation, the complete documentation can be found [here](https://github.com/ayush268/GSoC_2018_Documentation).
 This repository hosts the code for the File **C**ommon **P**rint **D**ialog **B**ackend. This backend manages and provides information about printing to a file via the printing dialog.
 
 ## Background
