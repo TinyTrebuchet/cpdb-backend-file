@@ -69,8 +69,9 @@ static gboolean on_handle_print_file(PrintBackend *interface,
   print_file(file_path, final_file_path);
   print_backend_complete_print_file(interface, invocation, "File printed");
 
-  d->cancel = 1;
-  remove_frontend(b, dialog_name);
+  /* (Currently Disabled) Printing a file must be the last operation. */
+  //d->cancel = 1;
+  //remove_frontend(b, dialog_name);
   if(b->num_frontends == 0)
   {
     g_message("No frontends connected .. exiting backend.\n");
