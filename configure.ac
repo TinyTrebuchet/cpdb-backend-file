@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([cpdb-backend-file],[1.0.0],[ayushb268@gmail.com],[CPDB - FILE Backend], [https://github.com/ayush268/cpdb-backend-file])
+AC_INIT([cpdb-backend-file],[1.0.1],[ayushb268@gmail.com],[CPDB - FILE Backend], [https://github.com/ayush268/cpdb-backend-file])
 AM_INIT_AUTOMAKE([-Wall foreign])
 AC_CONFIG_SRCDIR([src/print_backend_file.c])
 
