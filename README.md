@@ -24,6 +24,12 @@ $ make
 $ sudo make install
 ```
 
+If you are updating from an older version, please kill the old version of the backend:
+```
+$ sudo killall file
+```
+This way the next time when a print dialog is opened the new version of the backend is started.
+
 ## Running
 
 The backend is auto-activated when a frontend (like a CPDB-supporting print dialog or the example frontend `demo/print_frontend` of cpdb-libs) is started, so there is no need to run it explicitly.
