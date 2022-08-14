@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <glib.h>
-#include <cpdb-libs-backend.h>
+#include <cpdb/cpdb.h>
 
 #define INFO 3
 #define WARN 2

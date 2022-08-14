@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <glib.h>
 #include <string.h>
-#include <cpdb-libs-backend.h>
+#include <cpdb/cpdb.h>
 #include "backend_helper.h"
 
 #define BUS_NAME "org.openprinting.Backend.FILE"

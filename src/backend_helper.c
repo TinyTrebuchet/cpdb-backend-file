@@ -46,7 +46,7 @@ void add_frontend(BackendObj *b, const char *dialog_name)
 {
   Dialog *d = get_new_Dialog();
   b->default_printer = d->printers->name;
-  g_hash_table_insert(b->dialogs, get_string_copy(dialog_name), d);
+  g_hash_table_insert(b->dialogs, cpdbGetStringCopy(dialog_name), d);
   b->num_frontends++;
 }
 
@@ -85,7 +85,7 @@ void send_printer_added_signal(BackendObj *b, const char *dialog_name)
     exit(EXIT_FAILURE);
   }
 
-  GVariant *gv = g_variant_new(PRINTER_ADDED_ARGS,
+  GVariant *gv = g_variant_new(CPDB_PRINTER_ADDED_ARGS,
                                d->printers->name,
                                d->printers->name,
                                d->printers->info,
@@ -100,7 +100,7 @@ void send_printer_added_signal(BackendObj *b, const char *dialog_name)
                                 dialog_name,
                                 b->obj_path,
                                 "org.openprinting.PrintBackend",
-                                PRINTER_ADDED_SIGNAL,
+                                CPDB_SIGNAL_PRINTER_ADDED,
                                 gv,
                                 &error);
   g_assert_no_error(error);
@@ -119,7 +119,7 @@ GVariant *pack_option(const Option *opt)
   temp[0] = g_variant_new_string(opt->name);
   temp[1] = g_variant_new_string(opt->default_value);
   temp[2] = g_variant_new_int32(opt->num_supported);
-  temp[3] = pack_string_array(opt->num_supported, opt->supported_values);
+  temp[3] = cpdbPackStringArray(opt->num_supported, opt->supported_values);
   GVariant *option_variant = g_variant_new_tuple(temp, 4);
   g_free(temp);
   return option_variant;
