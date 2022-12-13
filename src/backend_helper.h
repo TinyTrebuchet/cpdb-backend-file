@@ -58,6 +58,8 @@ void add_frontend(BackendObj *b, const char *dialog_name);
 
 void remove_frontend(BackendObj *b, const char *dialog_name);
 
+Dialog *find_dialog(BackendObj *b, const char *dialog_name);
+
 void connect_to_dbus(BackendObj *b, char *obj_path);
 
 void send_printer_added_signal(BackendObj *b, const char *dialog_name);

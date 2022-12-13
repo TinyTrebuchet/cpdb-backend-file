@@ -42,6 +42,12 @@ FilePrinter *get_FilePrinter()
 
 
 /* Functions used to execute various D-Bus Methods */
+
+Dialog *find_dialog(BackendObj *b, const char *dialog_name)
+{
+  return (Dialog *)(g_hash_table_lookup(b->dialogs, dialog_name));
+}
+
 void add_frontend(BackendObj *b, const char *dialog_name)
 {
   Dialog *d = get_new_Dialog();
@@ -52,7 +58,7 @@ void add_frontend(BackendObj *b, const char *dialog_name)
 
 void remove_frontend(BackendObj *b, const char *dialog_name)
 {
-  Dialog *d = (Dialog *)(g_hash_table_lookup(b->dialogs, dialog_name));
+  Dialog *d = find_dialog(b, dialog_name);
   if(d)
   {
     g_hash_table_remove(b->dialogs, dialog_name);
