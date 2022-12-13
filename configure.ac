@@ -3,8 +3,9 @@
 
 AC_PREREQ([2.69])
 AC_INIT([cpdb-backend-file], [2.0.0], [https://github.com/OpenPrinting/cpdb-backend-file/issues/], [cpdb-backend-file], [https://github.com/OpenPrinting/cpdb-backend-file])
-AM_INIT_AUTOMAKE([-Wall foreign])
+AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR([src/print_backend_file.c])
+AM_INIT_AUTOMAKE([-Wall foreign])
 
 : ${CFLAGS=""}
 # Check for a C compiler
@@ -38,4 +39,8 @@ AC_SUBST(INFO_DIR)
 CPDB_BACKEND_DIR="$libdir/print-backends"
 AC_SUBST(CPDB_BACKEND_DIR)
 
-AC_OUTPUT([Makefile src/Makefile data/Makefile])
+AC_CONFIG_FILES([Makefile
+                 src/Makefile
+                 data/Makefile])
+
+AC_OUTPUT
