@@ -28,16 +28,25 @@ AC_TYPE_SIZE_T
 AC_FUNC_MALLOC
 
 # The Dbus service directory
-DBUS_SERVICES_DIR="/usr/share/dbus-1/services"
-AC_SUBST(DBUS_SERVICES_DIR)
+AC_MSG_CHECKING([dbus service file path])
+PKG_CHECK_VAR([DBUS_SERVICES_DIR], [dbus-1], [session_bus_services_dir],
+  AC_MSG_RESULT($DBUS_SERVICES_DIR),
+  AC_MSG_FAILURE([cannot locate session_bus_services_dir])
+)
 
 # The info directory which will be read by the frontend
-INFO_DIR="/usr/share/print-backends"
-AC_SUBST(INFO_DIR)
+AC_MSG_CHECKING([CPDB backend info path])
+PKG_CHECK_VAR([INFO_DIR], [cpdb], [cpdb_backend_info_dir],
+  AC_MSG_RESULT($INFO_DIR),
+  AC_MSG_FAILURE([cannot locate cpdb_backend_info_dir])
+)
 
 # The directory for the backend executables
-CPDB_BACKEND_DIR="$libdir/print-backends"
-AC_SUBST(CPDB_BACKEND_DIR)
+AC_MSG_CHECKING([CPDB backend executables path])
+PKG_CHECK_VAR([CPDB_BACKEND_DIR], [cpdb], [cpdb_backend_exec_dir],
+  AC_MSG_RESULT($CPDB_BACKEND_DIR),
+  AC_MSG_FAILURE([cannot locate cpdb_backend_exec_dir])
+)
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
