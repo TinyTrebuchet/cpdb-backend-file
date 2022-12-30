@@ -121,13 +121,16 @@ char *get_default_printer(BackendObj *b)
 
 GVariant *pack_option(const Option *opt)
 {
-  GVariant **temp = g_new(GVariant *, 4);
+  char *group_name = cpdbGetGroup(opt->name);
+  GVariant **temp = g_new(GVariant *, 5);
   temp[0] = g_variant_new_string(opt->name);
-  temp[1] = g_variant_new_string(opt->default_value);
-  temp[2] = g_variant_new_int32(opt->num_supported);
-  temp[3] = cpdbPackStringArray(opt->num_supported, opt->supported_values);
-  GVariant *option_variant = g_variant_new_tuple(temp, 4);
+  temp[1] = g_variant_new_string(group_name);
+  temp[2] = g_variant_new_string(opt->default_value);
+  temp[3] = g_variant_new_int32(opt->num_supported);
+  temp[4] = cpdbPackStringArray(opt->num_supported, opt->supported_values);
+  GVariant *option_variant = g_variant_new_tuple(temp, 5);
   g_free(temp);
+  free(group_name);
   return option_variant;
 }
 

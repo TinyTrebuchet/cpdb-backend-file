@@ -3,6 +3,7 @@
 *.out
 *.o
 *.pdf
+.vscode
 gmon.out
 Makefile.in
 aclocal.m4

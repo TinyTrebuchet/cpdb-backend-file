@@ -2,7 +2,7 @@
 
 int main()
 {
-  //printf("Hello World!\n");
+  cpdbInit();
   GMainLoop *loop = g_main_loop_new(NULL, FALSE);
   b = get_new_BackendObj();
   acquire_session_bus_name(BUS_NAME);
@@ -318,6 +318,39 @@ static gboolean on_handle_replace(PrintBackend *interface,
   return TRUE;
 }
 
+static gboolean on_handle_get_option_translation(PrintBackend *interface,
+                                                 GDBusMethodInvocation *invocation,
+                                                 const gchar *option_name,
+                                                 const gchar *locale,
+                                                 gpointer user_data)
+{
+  print_backend_complete_get_option_translation(interface, invocation, option_name);
+  return TRUE;
+}
+
+static gboolean on_handle_get_choice_translation(PrintBackend *interface,
+                                                 GDBusMethodInvocation *invocation,
+                                                 const gchar *option_name,
+                                                 const gchar *choice_name,
+                                                 const gchar *locale,
+                                                 gpointer user_data)
+{
+  print_backend_complete_get_choice_translation(interface, invocation, choice_name);
+  return TRUE;
+}
+
+static gboolean on_handle_get_group_translation(PrintBackend *interface,
+                                                GDBusMethodInvocation *invocation,
+                                                const gchar *group_name,
+                                                const gchar *locale,
+                                                gpointer user_data)
+{
+  char *translation = cpdbGetGroupTranslation2(group_name, locale);
+  print_backend_complete_get_group_translation(interface, invocation, translation);
+  free(translation);
+  return TRUE;
+}
+
 static gboolean on_handle_get_human_readable_option_name(PrintBackend *interface,
                                                          GDBusMethodInvocation *invocation,
                                                          const gchar *option_name,
@@ -394,6 +427,21 @@ void connect_to_signals()
   g_signal_connect(skeleton,
                    "handle-replace",
                    G_CALLBACK(on_handle_replace),
+                   NULL);
+
+  g_signal_connect(skeleton,
+                   "handle-get-option-translation",
+                   G_CALLBACK(on_handle_get_option_translation),
+                   NULL);
+
+  g_signal_connect(skeleton,
+                   "handle-get-choice-translation",
+                   G_CALLBACK(on_handle_get_choice_translation),
+                   NULL);
+
+  g_signal_connect(skeleton,
+                   "handle-get-group-translation",
+                   G_CALLBACK(on_handle_get_group_translation),
                    NULL);
 
   g_signal_connect(skeleton,
