@@ -7,6 +7,9 @@
 #include <glib.h>
 #include <cpdb/backend.h>
 
+
+#define BACKEND_NAME "FILE"
+
 #define INFO 3
 #define WARN 2
 #define ERR 1

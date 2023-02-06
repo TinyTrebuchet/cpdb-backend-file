@@ -33,13 +33,28 @@ acquire_session_bus_name(char *bus_name)
                  NULL);
 }
 
-static gboolean on_handle_activate_backend(PrintBackend *interface,
+static gboolean on_handle_get_printer_list(PrintBackend *interface,
                                            GDBusMethodInvocation *invocation,
                                            gpointer user_data)
 {
+  int num_printers;
+  GVariant *printers, *printer;
+  GVariantBuilder builder;
+
   const char *dialog_name = g_dbus_method_invocation_get_sender(invocation);
+
   add_frontend(b, dialog_name);
-  send_printer_added_signal(b, dialog_name);
+  num_printers = 1;
+  g_variant_builder_init(&builder, G_VARIANT_TYPE_ARRAY);
+  FilePrinter *fp = get_FilePrinter();
+  printer = g_variant_new(CPDB_PRINTER_ARGS, fp->name, fp->name, fp->info,
+                          fp->location, fp->name, fp->is_accepting_jobs,
+                          fp->state, BACKEND_NAME);
+  g_variant_builder_add(&builder, "(v)", printer);
+  printers = g_variant_builder_end(&builder);
+  
+  free(fp);
+  print_backend_complete_get_printer_list(interface, invocation, num_printers, printers);
   return TRUE;
 }
 
@@ -105,17 +120,6 @@ static void on_stop_backend(GDBusConnection *connection,
     g_message("No frontends connected .. exiting backend.\n");
     exit(EXIT_SUCCESS);
   }
-}
-
-static void on_refresh_backend(GDBusConnection *connection,
-                               const gchar *sender_name,
-                               const gchar *object_path,
-                               const gchar *interface_name,
-                               const gchar *signal_name,
-                               GVariant *parameters,
-                               gpointer user_data)
-{
-  g_message("Refresh backend signal from %s\n", sender_name); 
 }
 
 static gboolean on_handle_get_default_printer(PrintBackend *interface,                                 
@@ -375,8 +379,8 @@ void connect_to_signals()
   PrintBackend *skeleton = b->skeleton;
   
   g_signal_connect(skeleton,
-                   "handle-activate-backend",
-                   G_CALLBACK(on_handle_activate_backend),
+                   "handle-get-printer-list",
+                   G_CALLBACK(on_handle_get_printer_list),
                    NULL);
 
   g_signal_connect(skeleton,
@@ -453,17 +457,6 @@ void connect_to_signals()
                    "handle-get-human-readable-choice-name",
                    G_CALLBACK(on_handle_get_human_readable_choice_name),
                    NULL);
-
-  g_dbus_connection_signal_subscribe(b->dbus_connection,
-                                     NULL,
-                                     "org.openprinting.PrintFrontend",
-                                     CPDB_SIGNAL_REFRESH_BACKEND,
-                                     NULL,
-                                     NULL,
-                                     0,
-                                     on_refresh_backend,
-                                     NULL,
-                                     NULL);
 
   g_dbus_connection_signal_subscribe(b->dbus_connection,
                                      NULL,
