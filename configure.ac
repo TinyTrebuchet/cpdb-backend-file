@@ -5,7 +5,7 @@ AC_PREREQ([2.69])
 AC_INIT([cpdb-backend-file], [2.0b1], [https://github.com/OpenPrinting/cpdb-backend-file/issues/], [cpdb-backend-file], [https://github.com/OpenPrinting/cpdb-backend-file])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR([src/print_backend_file.c])
-AM_INIT_AUTOMAKE([-Wall foreign])
+AM_INIT_AUTOMAKE([-Wall dist-xz dist-bzip2 foreign])
 
 : ${CFLAGS=""}
 # Check for a C compiler
