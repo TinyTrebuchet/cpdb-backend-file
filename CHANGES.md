@@ -1,4 +1,23 @@
-# CHANGES - Common Print Dialog Backends - File Backend - v2.0b1 - 2022-12-13
+# CHANGES - Common Print Dialog Backends - File Backend - v2.0b2 - 2023-02-13
+
+## CHANGES IN V2.0b2 (13th February 2022)
+
+- Let frontend synchronously fetch printer list upon activation (PR #5)
+
+- Added the support of cpdb-libs for translations
+  * Using general message string catalogs from CUPS and also message
+    string catalogs from individual print queues/IPP printers.
+  * Message catalog management done by libcupsfilters 2.x, via the
+    `cfCatalog...()` API functions (`catalog.h`).
+
+- Option group support
+
+- Log messages handled by frontend
+
+- Removed hardcoded paths (PR #3)
+
+- Build system: Let "make dist" also create .tar.bz2 and .tar.xz
+
 
 ## CHANGES IN V2.0b1 (13th December 2022)
 
