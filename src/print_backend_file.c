@@ -205,18 +205,24 @@ static gboolean on_handle_get_all_options(PrintBackend *interface,
   GVariant *variant, *media_variant;
 
   media_count = 0;
-  builder = g_variant_builder_new(G_VARIANT_TYPE("a(siiia(iiii))"));
-  media_variant = g_variant_builder_end(builder);
+  media_variant = g_variant_new_array(G_VARIANT_TYPE("(siiia(iiii))"), NULL, 0);
 
   count = d->printers->num_options;
   options = d->printers->options;
-  builder = g_variant_builder_new(G_VARIANT_TYPE("a(ssia(s))"));
-  for(int i=0; i<count ; i++)
+  if (count == 0)
   {
-    GVariant *option = pack_option(&options[i]);
-    g_variant_builder_add_value(builder, option);
+    variant = g_variant_new_array(G_VARIANT_TYPE("(sssia(s))"), NULL, 0);
   }
-  variant = g_variant_builder_end(builder);
+  else
+  {
+    builder = g_variant_builder_new(G_VARIANT_TYPE("a(sssia(s))"));
+    for(int i=0; i<count ; i++)
+    {
+      GVariant *option = pack_option(&options[i]);
+      g_variant_builder_add_value(builder, option);
+    }
+    variant = g_variant_builder_end(builder);
+  }
 
   print_backend_complete_get_all_options(interface, invocation, count, variant, media_count, media_variant);
   return TRUE;
@@ -324,6 +330,7 @@ static gboolean on_handle_replace(PrintBackend *interface,
 
 static gboolean on_handle_get_option_translation(PrintBackend *interface,
                                                  GDBusMethodInvocation *invocation,
+                                                 const gchar *printer_name,
                                                  const gchar *option_name,
                                                  const gchar *locale,
                                                  gpointer user_data)
@@ -334,6 +341,7 @@ static gboolean on_handle_get_option_translation(PrintBackend *interface,
 
 static gboolean on_handle_get_choice_translation(PrintBackend *interface,
                                                  GDBusMethodInvocation *invocation,
+                                                 const gchar *printer_name,
                                                  const gchar *option_name,
                                                  const gchar *choice_name,
                                                  const gchar *locale,
@@ -345,6 +353,7 @@ static gboolean on_handle_get_choice_translation(PrintBackend *interface,
 
 static gboolean on_handle_get_group_translation(PrintBackend *interface,
                                                 GDBusMethodInvocation *invocation,
+                                                const gchar *printer_name,
                                                 const gchar *group_name,
                                                 const gchar *locale,
                                                 gpointer user_data)
@@ -355,22 +364,14 @@ static gboolean on_handle_get_group_translation(PrintBackend *interface,
   return TRUE;
 }
 
-static gboolean on_handle_get_human_readable_option_name(PrintBackend *interface,
-                                                         GDBusMethodInvocation *invocation,
-                                                         const gchar *option_name,
-                                                         gpointer user_data)
+static gboolean on_handle_get_all_translations(PrintBackend *interface,
+                                               GDBusMethodInvocation *invocation,
+                                               const gchar *printer_name,
+                                               const gchar *locale,
+                                               gpointer user_data)
 {
-  print_backend_complete_get_human_readable_option_name(interface, invocation, option_name);
-  return TRUE;
-}
-
-static gboolean on_handle_get_human_readable_choice_name(PrintBackend *interface,
-                                                         GDBusMethodInvocation *invocation,
-                                                         const gchar *option_name,
-                                                         const gchar *choice_name,
-                                                         gpointer user_data)
-{
-  print_backend_complete_get_human_readable_option_name(interface, invocation, choice_name);
+  GVariant *translations = g_variant_new_array(G_VARIANT_TYPE(CPDB_TL_ARGS), NULL, 0);
+  print_backend_complete_get_all_translations(interface, invocation, translations);
   return TRUE;
 }
 
@@ -447,15 +448,9 @@ void connect_to_signals()
                    "handle-get-group-translation",
                    G_CALLBACK(on_handle_get_group_translation),
                    NULL);
-
   g_signal_connect(skeleton,
-                   "handle-get-human-readable-option-name",
-                   G_CALLBACK(on_handle_get_human_readable_option_name),
-                   NULL);
-
-  g_signal_connect(skeleton,
-                   "handle-get-human-readable-choice-name",
-                   G_CALLBACK(on_handle_get_human_readable_choice_name),
+                   "handle-get-all-translations",
+                   G_CALLBACK(on_handle_get_all_translations),
                    NULL);
 
   g_dbus_connection_signal_subscribe(b->dbus_connection,
